@@ -2,6 +2,7 @@ import pygame
 import random
 import sys
 
+
 pygame.init()
 
 # Importer les mots depuis le fichier texte
@@ -23,6 +24,8 @@ hauteur = 600
 
 # New background image file path
 new_background_image_path = "/Users/mathisserra/Desktop/Github/pendu/wallpaper.jpeg"
+font = pygame.font.Font("minecraft_font.ttf", 40)
+reload_rect = pygame.Rect(200, 375, 400, 50)
 
 
 # Load the new background image
@@ -40,6 +43,7 @@ lettres_trouvees = []
 
 #Incorrect letters
 lettres_incorrectes = []
+new_game = True
 
 
 
@@ -74,7 +78,6 @@ def dessiner_pendu(parties):
     
     
 def draw_text(text):
-    font = pygame.font.SysFont("Arial", 40)
     texte = font.render(text, True, Blanc)
     gameWindow.blit(texte, (largeur // 2 - texte.get_width() // 2, hauteur // 2 - texte.get_height() // 2))
         
@@ -82,10 +85,20 @@ def draw_text(text):
     
 #Main loop
 while True:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            event.pos=pygame.mouse.get_pos()
+            if reload_rect.collidepoint(event.pos):
+                print("recommencer")    
+                new_game = True
+                mot_a_trouver = random.choice(mots)
+                parties_pendu = 0
+                lettres_trouvees = []
+                lettres_incorrectes = []
         elif event.type == pygame.KEYDOWN:
             if event.unicode.isalpha():
                 lettre = event.unicode.upper()
@@ -96,47 +109,59 @@ while True:
                         lettres_incorrectes.append(lettre)
                         parties_pendu += 1
     
-    
-    # Blit the new background image
-    gameWindow.blit(new_background_image, (0, 0))
-    
-    # masked word
-    mot_masque = ""
-    for lettre in mot_a_trouver:
-        if lettre in lettres_trouvees:
-            mot_masque += lettre
-        else:
-            mot_masque += "_"
-
-
-        #Show mascked word
-    
-    font = pygame.font.SysFont("Arial", 40)
-    texte_mot = font.render(mot_masque, True, Blanc)
-    gameWindow.blit(texte_mot, (largeur // 2 - texte_mot.get_width() // 2, hauteur // 2 - texte_mot.get_height() // 2))
-
-    # Show incorrect letters
-    texte_incorrect = font.render("Lettres incorrectes: " + " ".join(lettres_incorrectes), True, Blanc)
-    gameWindow.blit(texte_incorrect, (50, 50))
-
-    dessiner_pendu(parties_pendu)
-
-    # Verify if victory
-    if set(mot_a_trouver) == set(lettres_trouvees):
-        mot_a_trouver = random.choice(mots)  # Replace the word after winning
-        font_win = pygame.font.SysFont("Arial", 0)
-        texte_win = font_win.render(f"Félicitations, vous avez trouvé le mot !",  True, Blanc)
-        gameWindow.blit(texte_win, (largeur // 2 - texte_win.get_width() // 2, hauteur // 2  - texte_win.get_height() // 2))
-        pygame.display.flip()
+    if new_game:    
+        # Blit the new background image
+        gameWindow.blit(new_background_image, (0, 0))
         
+        # masked word
+        mot_masque = ""
+        for lettre in mot_a_trouver:
+            if lettre in lettres_trouvees:
+                mot_masque += lettre
+            else:
+                mot_masque += "_"
 
-    if parties_pendu == len(images_pendu):
-        draw_text(f"Désolé, vous avez été pendu ! Le mot était : {mot_a_trouver}")
-        pygame.display.flip()
+
+            #Show mascked word
         
+        texte_mot = font.render(mot_masque, True, Blanc)
+        gameWindow.blit(texte_mot, (largeur // 2 - texte_mot.get_width() // 2, hauteur // 2 - texte_mot.get_height() // 2))
 
-    # Update the display
-    pygame.display.flip()
+        # Show incorrect letters
+        texte_incorrect = font.render("Lettres incorrectes: " + " ".join(lettres_incorrectes), True, Blanc)
+        gameWindow.blit(texte_incorrect, (50, 50))
 
+        dessiner_pendu(parties_pendu)
+
+        # Verify if victory
+        if set(mot_a_trouver) == set(lettres_trouvees):
+            new_game = False
+            if new_game == False:
+                font_win = pygame.font.Font("minecraft_font.ttf", 20)
+                texte_win = font_win.render("Felicitations, vous avez trouve le mot !",  True, Blanc)
+                gameWindow.blit(texte_win, (largeur // 2 - texte_win.get_width() // 2, hauteur // 3  - texte_win.get_height() // 2))
+                lettres_incorrectes = []
+                lettres_trouvees = []
+                text_reload = font_win.render("Appuyez ici pour recommencer", True, Blanc)
+                pygame.draw.rect(gameWindow, Noir, reload_rect)
+                gameWindow.blit(text_reload, (largeur // 2 +2 - texte_win.get_width() // 3 - 32, hauteur // 3*2  - text_reload.get_height() // 2))
+                
+        if set(lettres_incorrectes) == set(images_pendu):
+                new_game = False
+                if new_game == False:
+                    font_lose = pygame.font.Font("minecraft_font.ttf", 20)
+                    texte_lose = font_lose.render("Vous avez perdu, le mot etait: " + mot_a_trouver, True, Blanc)
+                    gameWindow.blit(texte_lose, (largeur // 2 - texte_lose.get_width() // 2, hauteur // 3  - texte_lose.get_height() // 2))
+                    lettres_incorrectes = []
+                    lettres_trouvees = []
+                    text_reload = font_lose.render("Appuyez ici pour recommencer", True, Blanc)
+                    pygame.draw.rect(gameWindow, Noir, reload_rect)
+                    gameWindow.blit(text_reload, (largeur // 2 +2 - texte_win.get_width() // 3 - 32, hauteur // 3*2  - text_reload.get_height() // 2))
+            
+        # Update the display
+        pygame.display.flip()
+        clock.tick(30)
+
+        
     
- 
+    
