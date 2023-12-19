@@ -145,20 +145,31 @@ while True:
                 text_reload = font_win.render("Appuyez ici pour recommencer", True, Blanc)
                 pygame.draw.rect(gameWindow, Noir, reload_rect)
                 gameWindow.blit(text_reload, (largeur // 2 +2 - texte_win.get_width() // 3 - 32, hauteur // 3*2  - text_reload.get_height() // 2))
+        
+        
+        
+        if len(lettres_incorrectes) == 3:
+            new_game = False
+            if not new_game: 
+                font_lose = pygame.font.Font("minecraft_font.ttf", 20)
+                texte_lose = font_lose.render("Vous avez perdu", True, Blanc)
+                gameWindow.blit(texte_lose, (largeur // 2 - texte_lose.get_width() // 2, hauteur // 3 - texte_lose.get_height() // 2))
+
                 
-        if set(lettres_incorrectes) == set(images_pendu):
-                new_game = False
-                if new_game == False:
-                    font_lose = pygame.font.Font("minecraft_font.ttf", 20)
-                    texte_lose = font_lose.render("Vous avez perdu, le mot etait: " + mot_a_trouver, True, Blanc)
-                    gameWindow.blit(texte_lose, (largeur // 2 - texte_lose.get_width() // 2, hauteur // 3  - texte_lose.get_height() // 2))
-                    lettres_incorrectes = []
-                    lettres_trouvees = []
-                    text_reload = font_lose.render("Appuyez ici pour recommencer", True, Blanc)
-                    pygame.draw.rect(gameWindow, Noir, reload_rect)
-                    gameWindow.blit(text_reload, (largeur // 2 +2 - texte_win.get_width() // 3 - 32, hauteur // 3*2  - text_reload.get_height() // 2))
-            
-        # Update the display
+                text_reload = font_lose.render("Appuyez ici pour recommencer", True, Blanc)
+                pygame.draw.rect(gameWindow, Blanc, reload_rect)  
+                gameWindow.blit(text_reload, (largeur // 2 + 2 - texte_lose.get_width() // 3 - 32, hauteur // 3 * 2 - text_reload.get_height() // 2))
+
+                # Handle mouse click event
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN and not new_game:
+                        if reload_rect.collidepoint(event.pos):
+                            new_game = True
+                            mot_a_trouver = random.choice(mots)
+                            parties_pendu = 0
+                            lettres_trouvees = []
+                            lettres_incorrectes = []
+
         pygame.display.flip()
         clock.tick(30)
 
