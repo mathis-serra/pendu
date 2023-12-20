@@ -8,7 +8,7 @@ pygame.init()
 # Importer les mots depuis le fichier texte
 def charger_mots():
     try:
-        with open("/Users/mathisserra/Desktop/Github/pendu/mots", "r") as fichier:
+        with open("mots", "r") as fichier:
             mots = [mot.strip().upper() for mot in fichier.readlines()]
         return mots
     except FileNotFoundError:
@@ -18,25 +18,30 @@ def charger_mots():
 # Fenêtre de jeu
 Blanc = (255, 255, 255)
 Noir = (0, 0, 0)
+Grey = (128, 128, 128)
 largeur = 800
 hauteur = 600
+# Not hide the image of hearts
+hide_image = False
 
 
 # New background image file path
-new_background_image_path = "/Users/mathisserra/Desktop/Github/pendu/wallpaper.jpeg"
+new_background_image_path = "images/wallpaper.jpeg"
 font = pygame.font.Font("minecraft_font.ttf", 40)
+font_win = pygame.font.Font("minecraft_font.ttf", 20)
+# Reload button rectangle 
 reload_rect = pygame.Rect(200, 375, 400, 50)
 
 
+
 # Load the new background image
-    
 new_background_image = pygame.image.load(new_background_image_path)
+
 # Charger l'image de fond
 gameWindow = pygame.display.set_mode((largeur, hauteur))
 pygame.display.set_caption("Jeu du Pendu")
 
 #Random word selection
-
 mots = charger_mots()
 mot_a_trouver = random.choice(mots)
 lettres_trouvees = []
@@ -44,42 +49,20 @@ lettres_trouvees = []
 #Incorrect letters
 lettres_incorrectes = []
 new_game = True
-
-
-
-
 parties_pendu = 0
 #images of hearts
 images_pendu = [
-    pygame.image.load("/Users/mathisserra/Desktop/Github/pendu/heart3.png"),
-    pygame.image.load("/Users/mathisserra/Desktop/Github/pendu/heart2.png"),
-    pygame.image.load("/Users/mathisserra/Desktop/Github/pendu/heart1.png"),
+    pygame.image.load("images/heart3.png"),
+    pygame.image.load("images/heart2.png"),
+    pygame.image.load("images/heart1.png"),
+    pygame.image.load("images/heart3.png")
 ]
 
 
 clock = pygame.time.Clock()
 
 
-def dessiner_pendu(parties):
-    largeur_image = images_pendu[parties].get_width()
-    hauteur_image = images_pendu[parties].get_height()
-    
-    facteur_reduction = 0.3  # Adjust the reduction factor to resize the image
 
-    nouvelle_largeur = int(largeur_image * facteur_reduction)
-    nouvelle_hauteur = int(hauteur_image * facteur_reduction)
-
-    image_redimensionnee = pygame.transform.scale(images_pendu[parties], (nouvelle_largeur, nouvelle_hauteur))
-    #change the position of the image in that case it goes bellow the masked word
-    x = (largeur - nouvelle_largeur) // 2
-    y = (hauteur - nouvelle_hauteur) +1
-
-    gameWindow.blit(image_redimensionnee, (x, y))
-    
-    
-def draw_text(text):
-    texte = font.render(text, True, Blanc)
-    gameWindow.blit(texte, (largeur // 2 - texte.get_width() // 2, hauteur // 2 - texte.get_height() // 2))
         
     
     
@@ -92,13 +75,13 @@ while True:
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             event.pos=pygame.mouse.get_pos()
-            if reload_rect.collidepoint(event.pos):
-                print("recommencer")    
+            if reload_rect.collidepoint(event.pos):  
                 new_game = True
                 mot_a_trouver = random.choice(mots)
                 parties_pendu = 0
                 lettres_trouvees = []
                 lettres_incorrectes = []
+                hide_image = False
         elif event.type == pygame.KEYDOWN:
             if event.unicode.isalpha():
                 lettre = event.unicode.upper()
@@ -122,8 +105,8 @@ while True:
                 mot_masque += "_"
 
 
-            #Show mascked word
-        
+            
+        #Show masked word
         texte_mot = font.render(mot_masque, True, Blanc)
         gameWindow.blit(texte_mot, (largeur // 2 - texte_mot.get_width() // 2, hauteur // 2 - texte_mot.get_height() // 2))
 
@@ -131,44 +114,39 @@ while True:
         texte_incorrect = font.render("Lettres incorrectes: " + " ".join(lettres_incorrectes), True, Blanc)
         gameWindow.blit(texte_incorrect, (50, 50))
 
-        dessiner_pendu(parties_pendu)
+       
 
         # Verify if victory
         if set(mot_a_trouver) == set(lettres_trouvees):
             new_game = False
-            if new_game == False:
-                font_win = pygame.font.Font("minecraft_font.ttf", 20)
-                texte_win = font_win.render("Felicitations, vous avez trouve le mot !",  True, Blanc)
-                gameWindow.blit(texte_win, (largeur // 2 - texte_win.get_width() // 2, hauteur // 3  - texte_win.get_height() // 2))
-                lettres_incorrectes = []
-                lettres_trouvees = []
-                text_reload = font_win.render("Appuyez ici pour recommencer", True, Blanc)
-                pygame.draw.rect(gameWindow, Noir, reload_rect)
-                gameWindow.blit(text_reload, (largeur // 2 +2 - texte_win.get_width() // 3 - 32, hauteur // 3*2  - text_reload.get_height() // 2))
+            hide_image  = True
+            #new font to change size of it
+            
+            texte_win = font_win.render("Felicitations, vous avez trouve le mot !",  True, Blanc)
+            gameWindow.blit(texte_win, (largeur // 2 - texte_win.get_width() // 2, hauteur // 3  - texte_win.get_height() // 2))
+            lettres_incorrectes = []
+            lettres_trouvees = []
+            text_reload = font_win.render("Appuyez ici pour recommencer", True, Blanc)
+            pygame.draw.rect(gameWindow, Grey, reload_rect)
+            gameWindow.blit(text_reload, (largeur // 2 +2 - texte_win.get_width() // 3 - 32, hauteur // 3*2  - text_reload.get_height() // 2))
+              
+            
         
-        
-        
+        # Verify if defeat
         if len(lettres_incorrectes) == 3:
             new_game = False
-            if not new_game: 
-                font_lose = pygame.font.Font("minecraft_font.ttf", 20)
-                texte_lose = font_lose.render("Vous avez perdu", True, Blanc)
+            if new_game == False:                 
+                texte_lose = font_win.render("Vous avez perdu", True, Blanc)
                 gameWindow.blit(texte_lose, (largeur // 2 - texte_lose.get_width() // 2, hauteur // 3 - texte_lose.get_height() // 2))
-
+                text_reload = font_win.render("Appuyez ici pour recommencer", True, Blanc)
+                pygame.draw.rect(gameWindow, Grey, reload_rect)  
+                gameWindow.blit(text_reload, (largeur // 3 + 20 - texte_lose.get_width() // 3 , hauteur // 3 * 2 - 3 - text_reload.get_height() // 2))
                 
-                text_reload = font_lose.render("Appuyez ici pour recommencer", True, Blanc)
-                pygame.draw.rect(gameWindow, Blanc, reload_rect)  
-                gameWindow.blit(text_reload, (largeur // 2 + 2 - texte_lose.get_width() // 3 - 32, hauteur // 3 * 2 - text_reload.get_height() // 2))
+            
+        # Show the number of hearts 
+        if not hide_image and parties_pendu < len(images_pendu) -1:
+            gameWindow.blit(images_pendu[parties_pendu], (largeur // 2 - images_pendu[parties_pendu].get_width() // 2, hauteur // 3 * 2 + 40  - images_pendu[parties_pendu].get_height() // 2))
 
-                # Handle mouse click event
-                for event in pygame.event.get():
-                    if event.type == pygame.MOUSEBUTTONDOWN and not new_game:
-                        if reload_rect.collidepoint(event.pos):
-                            new_game = True
-                            mot_a_trouver = random.choice(mots)
-                            parties_pendu = 0
-                            lettres_trouvees = []
-                            lettres_incorrectes = []
 
         pygame.display.flip()
         clock.tick(30)
