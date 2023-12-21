@@ -31,6 +31,15 @@ font = pygame.font.Font("minecraft_font.ttf", 40)
 font_win = pygame.font.Font("minecraft_font.ttf", 20)
 # Reload button rectangle 
 reload_rect = pygame.Rect(200, 375, 400, 50)
+# Load music file
+music_file = "minecraft.mp3"  # Replace with the path to your music file
+pygame.mixer.music.load(music_file)
+
+# Set volume (optional)
+pygame.mixer.music.set_volume(0.5)  # Adjust the volume (0.0 to 1.0)
+
+# Start playing the music (infinite loop by default)
+pygame.mixer.music.play()
 
 
 
@@ -71,6 +80,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            pygame.mixer_music.stop() 
             pygame.quit()
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
