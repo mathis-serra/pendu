@@ -27,18 +27,19 @@ hide_image = False
 
 # New background image file path
 new_background_image_path = "images/wallpaper.jpeg"
-font = pygame.font.Font("minecraft_font.ttf", 40)
-font_win = pygame.font.Font("minecraft_font.ttf", 20)
+font = pygame.font.Font("assets/minecraft_font.ttf", 40)
+#Just to change the size of the font
+font_win = pygame.font.Font("assets/minecraft_font.ttf", 20)
 # Reload button rectangle 
 reload_rect = pygame.Rect(200, 375, 400, 50)
 # Load music file
-music_file = "minecraft.mp3"  # Replace with the path to your music file
+music_file = "musics/minecraft.mp3" 
 pygame.mixer.music.load(music_file)
 
-# Set volume (optional)
-pygame.mixer.music.set_volume(0.5)  # Adjust the volume (0.0 to 1.0)
 
-# Start playing the music (infinite loop by default)
+pygame.mixer.music.set_volume(0.5)  
+
+# Play music file
 pygame.mixer.music.play()
 
 
@@ -61,10 +62,12 @@ new_game = True
 parties_pendu = 0
 #images of hearts
 images_pendu = [
+    pygame.image.load("images/heart5.png"),
+    pygame.image.load("images/heart4.png"),
     pygame.image.load("images/heart3.png"),
     pygame.image.load("images/heart2.png"),
     pygame.image.load("images/heart1.png"),
-    pygame.image.load("images/heart3.png")
+    pygame.image.load("images/heart5.png"),
 ]
 
 
@@ -80,6 +83,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            #music stop
             pygame.mixer_music.stop() 
             pygame.quit()
             sys.exit()
@@ -143,14 +147,14 @@ while True:
             
         
         # Verify if defeat
-        if len(lettres_incorrectes) == 3:
+        if len(lettres_incorrectes) == 5:
             new_game = False
             if new_game == False:                 
-                texte_lose = font_win.render("Vous avez perdu", True, Blanc)
+                texte_lose = font_win.render("Vous avez perdu, le mot etait : " + mot_a_trouver, True, Blanc)
                 gameWindow.blit(texte_lose, (largeur // 2 - texte_lose.get_width() // 2, hauteur // 3 - texte_lose.get_height() // 2))
                 text_reload = font_win.render("Appuyez ici pour recommencer", True, Blanc)
                 pygame.draw.rect(gameWindow, Grey, reload_rect)  
-                gameWindow.blit(text_reload, (largeur // 3 + 20 - texte_lose.get_width() // 3 , hauteur // 3 * 2 - 3 - text_reload.get_height() // 2))
+                gameWindow.blit(text_reload, (largeur // 3 + 90 - texte_lose.get_width() // 3 , hauteur // 3 * 2 - 3 - text_reload.get_height() // 2))
                 
             
         # Show the number of hearts 
